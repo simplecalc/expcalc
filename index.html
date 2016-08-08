@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="Fan Made Exact Exp Calc For DelugeRPG">
+	<title>Experience Calculator</title>
+	<link rel="stylesheet" type="text/css" href="./easyui.css">
+	<link rel="stylesheet" type="text/css" href="./icon.css">
+	<script type="text/javascript" src="./jquery-1.6.1.min.js"></script>
+	<script type="text/javascript" src="./jquery.easyui.min.js"></script>
+	<style type="text/css">
+		.products{
+			list-style:none;
+			margin-right:400px;
+			padding:0px;
+			height:100%;
+		}
+		.products li{
+			display:inline;
+			float:left;
+			margin:10px;
+		}
+		.item{
+			width:200px;
+			border-left:1px solid #ffffff;
+			border-top:1px solid #ffffff;
+			border-right:1px solid #5e5e5f;
+			border-bottom:1px solid #5e5e5f;
+			display:block;
+			text-decoration:none;
+			background:#e8ecef;
+		}
+		.item img{
+			border:1px solid #333;
+		}
+		.item p{
+			margin:0;
+			font-family: "Arial, Helvetica, sans-serif";
+			text-align:center;
+			color:#343434;
+		}
+		.remove{
+			font-family: "Arial, Helvetica, sans-serif";
+			text-align:center;
+			color:#343434;
+			text-decoration:none;
+			
+		}
+		.cart{
+			position:fixed;
+			right:0;
+			top:0;
+			width:420px;
+			height:100%;
+			background:#d5d9dc;
+			padding:0px 10px;
+			background-image: url("./exper-bg.jpg");
+			background-position: left top ;
+		}
+		h1{
+			text-align:center;
+			color:#555;
+		}
+		h2{
+			position:absolute;
+			font-size:16px;
+			left:10px;
+			bottom:20px;
+			color:#555;
+		}
+		.total{
+			margin:0;
+			text-align:right;
+			padding-right:20px;
+		}
+	</style>
+	<script>
+		var data = {"total":0,"rows":[]};
+		var totalCost = 0;
+		
+		$(function(){
+		
+		$('#cartcontent').datagrid({
+				singleSelect:true
+			});
+			$('.item').draggable({
+				revert:true,
+				proxy:'clone',
+				onStartDrag:function(){
+					$(this).draggable('options').cursor = 'not-allowed';
+					$(this).draggable('proxy').css('z-index',10);
+				},
+				onStopDrag:function(){
+					$(this).draggable('options').cursor='move';
+				}
+			});
+			$('.cart').droppable({
+				onDragEnter:function(e,source){
+					$(source).draggable('options').cursor='auto';
+				},
+				onDragLeave:function(e,source){
+					$(source).draggable('options').cursor='not-allowed';
+				},
+				onDrop:function(e,source){
+					var name = $(source).find('p:eq(0)').html();
+					var exp = $(source).find('p:eq(1)').html();
+					addProduct(name, parseFloat(exp.split(':')[1]));
+				}
+			});
+		});
+
+	function addProduct(name,exp){
+		function add(){
+			for(var i=0; i<data.total; i++){
+				var row = data.rows[i];
+				if (row.name == name){
+					row.quantity += 1;
+					return;
+				}
+			}
+			data.total += 1;
+			data.rows.push({
+				name:name,
+				quantity:1,
+				exp:exp,
+                remove: '<a href="#" class="remove" onclick="removeProduct(this, event)">X</a>'
+			});
+		}
+		add();
+		totalCost += exp;
+		$('#cartcontent').datagrid('loadData', data);
+		$('div.cart .total').html('Total: :'+totalCost);
+	}
+
+function removeProduct(el, event) {
+    var tr = $(el).closest('tr');
+    var name = tr.find('td[field=name]').text();
+    var exp = tr.find('td[field=exp]').text();
+    var quantity = tr.find('td[field=quantity]').text();
+    for(var i = 0; i < data.total; i++){
+        var row = data.rows[i];
+        if (row.name == name) {
+            data.rows.splice(i, 1);
+            data.total--;
+            break;
+        }
+    }
+    totalCost -=  exp * quantity;
+    $('#cartcontent').datagrid('loadData', data);
+    $('div.cart .total').html('Total: :'+totalCost);
+}
+			
+	function fncSum()
+	{
+		 if(isNaN(document.frmMain.txtNumberA.value) || document.frmMain.txtNumberA.value == "")
+		 {
+			alert('(Number A)Please input Number only.');
+			document.frmMain.txtNumberA.focus();
+			return;
+		 }
+
+		 if(isNaN(document.frmMain.txtNumberB.value) || document.frmMain.txtNumberB.value == "")
+		 {
+			alert('(Number B)Please input Number only.');
+			document.frmMain.txtNumberB.focus();
+			return;
+		 }
+  <!--  for(var i = 0; i < data.total; i++){ data.rows.splice(i, 1); data.total--; break; } -->
+		 totalCost = parseFloat(document.frmMain.txtNumberB.value) - parseFloat(document.frmMain.txtNumberA.value);
+		 document.frmMain.txtNumberC.value = parseFloat(document.frmMain.txtNumberA.value) - parseFloat(document.frmMain.txtNumberB.value);
+		 $('#cartcontent').datagrid('selectAll');
+		 
+		 var rows = $('#cartcontent').datagrid('getSelections');  // get all selected rows
+for(var i=rows.length-1; i>= 0; i--){
+   var index = $('#cartcontent').datagrid('getRowIndex',rows.id);  // get the row index
+   $('#cartcontent').datagrid('deleteRow',index);
+}
+		 
+		 
+		 $('div.cart .total').html('Total: :'+totalCost);
+	}
+
+	</script>
+</head>
+<body style="margin:0;padding:0;height:100%;background:#e5e9ec;">
+<form name="frmMain" action="" method="post">
+	<ul class="products">
+<li><a href="#" class="item"><div><p> Ultimate Trainer  -  (Any) </p><p> Exp. : 33145 </div></a></li>
+<li><a href="#" class="item"><div><p> Champion  -  (Any) </p><p> Exp. : 18644 </div></a></li>
+<li><a href="#" class="item"><div><p> Drake  -  (Orange) </p><p> Exp. : 12491 </div></a></li>
+<li><a href="#" class="item"><div><p> Elite Four  -  (Any) </p><p> Exp. : 10358 </div></a></li>
+<li><a href="#" class="item"><div><p> Training Acc  -  TA </p><p> Exp. : 8286 </div></a></li>
+<li><a href="#" class="item"><div><p> Danny  -  (Orange) </p><p> Exp. : 5634 </div></a></li>
+<li><a href="#" class="item"><div><p> Giovanni  -  (Kanto) </p><p> Exp. : 4682 </div></a></li>
+<li><a href="#" class="item"><div><p> Juan  -  (Hoenn) </p><p> Exp. : 4433 </div></a></li>
+<li><a href="#" class="item"><div><p> Janine  -  (Kanto) </p><p> Exp. : 4392 </div></a></li>
+<li><a href="#" class="item"><div><p> Volkner  -  (Sinnoh) </p><p> Exp. : 3936 </div></a></li>
+<li><a href="#" class="item"><div><p> Blaine  -  (Kanto) </p><p> Exp. : 3542 </div></a></li>
+<li><a href="#" class="item"><div><p> Liza-and-Tate  -  (Hoenn) </p><p> Exp. : 3522 </div></a></li>
+<li><a href="#" class="item"><div><p> Rudy  -  (Orange) </p><p> Exp. : 3459 </div></a></li>
+<li><a href="#" class="item"><div><p> Candice  -  (Sinnoh) </p><p> Exp. : 3439 </div></a></li>
+<li><a href="#" class="item"><div><p> Sabrina  -  (Kanto) </p><p> Exp. : 3232 </div></a></li>
+<li><a href="#" class="item"><div><p> Winona  -  (Hoenn) </p><p> Exp. : 3169 </div></a></li>
+<li><a href="#" class="item"><div><p> Clair  -  (Johto) </p><p> Exp. : 3128 </div></a></li>
+<li><a href="#" class="item"><div><p> Marlon  -  (Unova) </p><p> Exp. : 3087 </div></a></li>
+<li><a href="#" class="item"><div><p> Drayden  -  (Unova) </p><p> Exp. : 2900 </div></a></li>
+<li><a href="#" class="item"><div><p> Olympia  -  (Kalos) </p><p> Exp. : 2838 </div></a></li>
+<li><a href="#" class="item"><div><p> Luana  -  (Orange) </p><p> Exp. : 2527 </div></a></li>
+<li><a href="#" class="item"><div><p> Valerie  -  (Kalos) </p><p> Exp. : 2465 </div></a></li>
+<li><a href="#" class="item"><div><p> Byron  -  (Sinnoh) </p><p> Exp. : 2403 </div></a></li>
+<li><a href="#" class="item"><div><p> Norman  -  (Hoenn) </p><p> Exp. : 2362 </div></a></li>
+<li><a href="#" class="item"><div><p> Skyla  -  (Unova) </p><p> Exp. : 2341 </div></a></li>
+<li><a href="#" class="item"><div><p> Clemont  -  (Kalos) </p><p> Exp. : 2217 </div></a></li>
+<li><a href="#" class="item"><div><p> Crasher Wake  -  (Sinnoh) </p><p> Exp. : 2154 </div></a></li>
+<li><a href="#" class="item"><div><p> Flannery  -  (Hoenn) </p><p> Exp. : 2030 </div></a></li>
+<li><a href="#" class="item"><div><p> Jasmine  -  (Johto) </p><p> Exp. : 1968 </div></a></li>
+<li><a href="#" class="item"><div><p> Hitoshi  -  (Dojo) </p><p> Exp. : 1926 </div></a></li>
+<li><a href="#" class="item"><div><p> Cissy  -  (Orange) </p><p> Exp. : 1906 </div></a></li>
+<li><a href="#" class="item"><div><p> Morty  -  (Johto) </p><p> Exp. : 1864 </div></a></li>
+<li><a href="#" class="item"><div><p> Maylene  -  (Sinnoh) </p><p> Exp. : 1844 </div></a></li>
+<li><a href="#" class="item"><div><p> Pryce  -  (Johto) </p><p> Exp. : 1802 </div></a></li>
+<li><a href="#" class="item"><div><p> Wattson  -  (Hoenn) </p><p> Exp. : 1781 </div></a></li>
+<li><a href="#" class="item"><div><p> Erika  -  (Kanto) </p><p> Exp. : 1699 </div></a></li>
+<li><a href="#" class="item"><div><p> Fantina  -  (Sinnoh) </p><p> Exp. : 1533 </div></a></li>
+<li><a href="#" class="item"><div><p> Burgh  -  (Unova) </p><p> Exp. : 1409 </div></a></li>
+<li><a href="#" class="item"><div><p> Hideki  -  (Dojo) </p><p> Exp. : 1326 </div></a></li>
+<li><a href="#" class="item"><div><p> Lt. Surge  -  (Kanto) </p><p> Exp. : 1305 </div></a></li>
+<li><a href="#" class="item"><div><p> Gardenia  -  (Sinnoh) </p><p> Exp. : 1284 </div></a></li>
+<li><a href="#" class="item"><div><p> Chuck  -  (Johto) </p><p> Exp. : 1181 </div></a></li>
+<li><a href="#" class="item"><div><p> Brawly  -  (Hoenn) </p><p> Exp. : 1056 </div></a></li>
+<li><a href="#" class="item"><div><p> Grant  -  (Kalos) </p><p> Exp. : 1036 </div></a></li>
+<li><a href="#" class="item"><div><p> Bugsy  -  (Johto) </p><p> Exp. : 911 </div></a></li>
+<li><a href="#" class="item"><div><p> Misty  -  (Kanto) </p><p> Exp. : 808 </div></a></li>
+<li><a href="#" class="item"><div><p> Whitney  -  (Johto) </p><p> Exp. : 787 </div></a></li>
+<li><a href="#" class="item"><div><p> Aaron  -  (Dojo) </p><p> Exp. : 746 </div></a></li>
+<li><a href="#" class="item"><div><p> Roxie  -  (Unova) </p><p> Exp. : 704 </div></a></li>
+<li><a href="#" class="item"><div><p> Brock  -  (Kanto) </p><p> Exp. : 539 </div></a></li>
+<li><a href="#" class="item"><div><p> Cheren  -  (Unova) </p><p> Exp. : 497 </div></a></li>
+<li><a href="#" class="item"><div><p> Viola  -  (Kalos) </p><p> Exp. : 456 </div></a></li>
+<li><a href="#" class="item"><div><p> Falkner  -  (Johto) </p><p> Exp. : 331 </div></a></li>
+<li><a href="#" class="item"><div><p> Sixteen  -  16 </p><p> Exp. : 177 </div></a></li>
+<li><a href="#" class="item"><div><p> Fifteen  -  15 </p><p> Exp. : 166 </div></a></li>
+<li><a href="#" class="item"><div><p> Fourteen  -  14 </p><p> Exp. : 155 </div></a></li>
+<li><a href="#" class="item"><div><p> Thirteen  -  13 </p><p> Exp. : 144 </div></a></li>
+<li><a href="#" class="item"><div><p> Twelve  -  12 </p><p> Exp. : 133 </div></a></li>
+<li><a href="#" class="item"><div><p> Eleven  -  11 </p><p> Exp. : 122 </div></a></li>
+<li><a href="#" class="item"><div><p> Ten  -  10 </p><p> Exp. : 111 </div></a></li>
+<li><a href="#" class="item"><div><p> Nine  -  9 </p><p> Exp. : 100 </div></a></li>
+<li><a href="#" class="item"><div><p> Eight  -  8 </p><p> Exp. : 88 </div></a></li>
+<li><a href="#" class="item"><div><p> Seven  -  7 </p><p> Exp. : 78 </div></a></li>
+<li><a href="#" class="item"><div><p> Six  -  6 </p><p> Exp. : 67 </div></a></li>
+<li><a href="#" class="item"><div><p> Five  -  5 </p><p> Exp. : 56 </div></a></li>
+<li><a href="#" class="item"><div><p> Four  -  4 </p><p> Exp. : 44 </div></a></li>
+<li><a href="#" class="item"><div><p> Three  -  3 </p><p> Exp. : 33 </div></a></li>
+<li><a href="#" class="item"><div><p> Two  -  2 </p><p> Exp. : 23 </div></a></li>
+
+	</ul>
+	<div class="cart">
+		<h1>Exp. Calc. V3.1b by Tolga</h1>
+		<table bgcolor="#e8ecef" style="text-align: justify;  border: 1px solid;"><tr><td><br />&nbsp;&nbsp;&nbsp;For calculate, fill the target and current; after hitting calculate button, simply drag experiences over the list area. You can put same exp.s multiple time. 
+		<br/><p style="text-align:center;">Add and Remove !Try to reach zero!</p></td></tr></table>
+		<table style="width:400px;height:auto;min-height:100px;">	
+		<tr><td style="height:10px;"> </td><td> </td></tr>	
+		<tr><td>Target Experience</td><td>Current Experience</td></tr>
+		<tr><td><input type="text" name="txtNumberA" value="" style="width:190px;"></td><td><input type="text" name="txtNumberB" value="" style="width:190px;"> </td></tr>
+		<tr><td></td><td><input type="button" name="btnSum" value="Calculate" OnClick="fncSum();" style="width:190px;" ></td></tr>
+		</table>
+		<div style="background:#95b8e7; overflow-y:scroll; height: 250px;">
+		<table id="cartcontent" fitColumns="true" style="width:400px;height:auto;min-height:250px;">
+			<thead>
+				<tr>
+<th field="name" width=160>Name</th>
+<th field="quantity" width=80 align="right">How Many?</th>
+<th field="exp" width=80 align="right">Exp</th>
+<th field="remove" width=80 align="right">Remove</th>
+				</tr>
+			</thead>			
+</form>
+		</table>
+		</div>
+		<p class="total">Total :0</p>		
+		<table style="align:right;">
+		<tr><td style="width:190px;">Total Missing Experience</td><td><input type="text" name="txtNumberC" value="" style="width:190px;"> </td></tr>
+		</table>
+		<table>
+		<tr><td><br /><br /><br /><img src="./HAFvs2z.jpg"></img></td></tr>
+		<tr><td><p style="text-align:center;">Special thanks to Yuzuriha for raw gym exp. chart !</p></td></tr>
+		</table
+		
+	</div>
+</body>
+</html>
