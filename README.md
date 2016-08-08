@@ -6,4 +6,4 @@ icon.css
 easyui.css
 are belong to their respective owners / creators / editors.
 
-a simple edit of a shopping cart; for the DelugeRPG's experience points.
+a simple edit of a shopping cart ( based on jeasyui.com tutorials ) for the DelugeRPG's experience points.
